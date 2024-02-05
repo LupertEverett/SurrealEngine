@@ -10,6 +10,10 @@
 #include "SDL2/SDL2Window.h"
 #endif
 
+#ifdef USE_SDL3
+#include "SDL3/SDL3Window.h"
+#endif
+
 #include <cstdio>
 #include <cmath>
 
@@ -30,6 +34,11 @@ std::unique_ptr<GameWindow> GameWindow::Create(GameWindowHost* windowHost, std::
 		throw std::runtime_error("SurrealEngine is built without SDL2 support. Windowing system cannot be SDL2");
 #endif
 
+#if !defined(USE_SDL3)
+	if (windowingSystemName == "SDL3")
+		throw std::runtime_error("SurrealEngine is built without SDL3 support. Windowing system cannot be SDL3");
+#endif
+
 	GameWindow::windowingSystemName = windowingSystemName;
 
 #if defined(WIN32)
@@ -40,6 +49,11 @@ std::unique_ptr<GameWindow> GameWindow::Create(GameWindowHost* windowHost, std::
 #if defined(USE_SDL2)
 	if (windowingSystemName == "SDL2")
 		return std::make_unique<SDL2Window>(windowHost);
+#endif
+
+#if defined(USE_SDL3)
+	if (windowingSystemName == "SDL3")
+		return std::make_unique<SDL3Window>(windowHost);
 #endif
 
 	throw std::runtime_error("Invalid Windowing system name: " + windowingSystemName);
@@ -61,6 +75,13 @@ void GameWindow::ProcessEvents()
 		return;
 	}
 #endif
+#if defined(USE_SDL3)
+	if (windowingSystemName == "SDL3")
+	{
+		SDL3Window::ProcessEvents();
+		return;
+	}
+#endif
 }
 
 void GameWindow::RunLoop()
@@ -79,6 +100,13 @@ void GameWindow::RunLoop()
 		return;
 	}
 #endif
+#if defined(USE_SDL3)
+	if (windowingSystemName == "SDL3")
+	{
+		SDL3Window::RunLoop();
+		return;
+	}
+#endif
 }
 
 void GameWindow::ExitLoop()
@@ -94,6 +122,13 @@ void GameWindow::ExitLoop()
 	if (windowingSystemName == "SDL2")
 	{
 		SDL2Window::ExitLoop();
+		return;
+	}
+#endif
+#if defined(USE_SDL2)
+	if (windowingSystemName == "SDL3")
+	{
+		SDL3Window::ExitLoop();
 		return;
 	}
 #endif
