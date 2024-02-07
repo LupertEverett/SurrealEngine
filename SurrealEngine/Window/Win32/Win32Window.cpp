@@ -36,7 +36,7 @@ Win32Window::Win32Window(GameWindowHost* windowHost) : WindowHost(windowHost)
 	WNDCLASSEX classdesc = {};
 	classdesc.cbSize = sizeof(WNDCLASSEX);
 	classdesc.hInstance = GetModuleHandle(0);
-	classdesc.style = CS_VREDRAW | CS_HREDRAW;
+	classdesc.style = CS_VREDRAW | CS_HREDRAW | CS_OWNDC; // CS_OWNDC is necessary for OpenGL
 	classdesc.lpszClassName = L"Win32Window";
 	classdesc.lpfnWndProc = &Win32Window::WndProc;
 	RegisterClassEx(&classdesc);
@@ -50,14 +50,7 @@ Win32Window::Win32Window(GameWindowHost* windowHost) : WindowHost(windowHost)
 	rid.hwndTarget = WindowHandle;
 	BOOL result = RegisterRawInputDevices(&rid, 1, sizeof(RAWINPUTDEVICE));
 
-	auto instance = VulkanInstanceBuilder()
-		.RequireSurfaceExtensions()
-		.DebugLayer(false)
-		.Create();
-
-	auto surface = std::make_shared<VulkanSurface>(instance, WindowHandle);
-
-	Device = RenderDevice::Create(this, surface);
+	Vulkan_Init();
 }
 
 Win32Window::~Win32Window()
@@ -436,6 +429,84 @@ void Win32Window::RunLoop()
 void Win32Window::ExitLoop()
 {
 	ExitRunLoop = true;
+}
+
+void Win32Window::OpenGL_Init()
+{
+	// Since we don't use any sort of helper libraries (like GLFW), we're on our own here
+	// using wgl* functions are a bit complicated, see: https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
+	PIXELFORMATDESCRIPTOR pfd =
+	{
+		sizeof(PIXELFORMATDESCRIPTOR),
+		1,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
+		PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
+		32,                   // Colordepth of the framebuffer.
+		0, 0, 0, 0, 0, 0,
+		0,
+		0,
+		0,
+		0, 0, 0, 0,
+		24,                   // Number of bits for the depthbuffer
+		8,                    // Number of bits for the stencilbuffer
+		0,                    // Number of Aux buffers in the framebuffer.
+		PFD_MAIN_PLANE,
+		0,
+		0, 0, 0
+	};
+
+	HDC deviceContext = GetDC(WindowHandle);
+	
+	int pixelFormatSelection = ChoosePixelFormat(deviceContext, &pfd);
+	SetPixelFormat(deviceContext, pixelFormatSelection, &pfd);
+
+	HGLRC glRenderContext = wglCreateContext(deviceContext);
+
+	if (!glRenderContext)
+	{
+		LPVOID lpMsgBuf;
+
+		DWORD error = GetLastError();
+
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			error,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpMsgBuf,
+			0, NULL);
+
+		std::string errorMessage((LPCSTR)lpMsgBuf);
+		throw std::runtime_error("Error while creating OpenGL context: " + errorMessage);
+	}
+
+	wglMakeCurrent(deviceContext, glRenderContext);
+
+	// RenderDevice creation with OpenGLRenderDevice comes here... whenever it can be done :V
+}
+
+void Win32Window::OpenGL_Deinit()
+{
+	wglDeleteContext(wglGetCurrentContext());
+}
+
+OpenGLProcAddress Win32Window::OpenGL_GetProcAddress()
+{
+	return (OpenGLProcAddress)wglGetProcAddress;
+}
+
+void Win32Window::Vulkan_Init()
+{
+	auto instance = VulkanInstanceBuilder()
+		.RequireSurfaceExtensions()
+		.DebugLayer(false)
+		.Create();
+
+	auto surface = std::make_shared<VulkanSurface>(instance, WindowHandle);
+
+	Device = RenderDevice::Create(this, surface);
 }
 
 std::list<Win32Window*> Win32Window::Windows;

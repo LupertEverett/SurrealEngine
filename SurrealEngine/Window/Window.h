@@ -105,6 +105,8 @@ public:
 	virtual void OnWindowDpiScaleChanged() = 0;
 };
 
+typedef void (*OpenGLProcAddress)(const char*);
+
 class GameWindow
 {
 public:
@@ -147,6 +149,13 @@ public:
 	Size ParseResolutionString(std::string& resolutionString) const;
 	Size GetClosestResolution(Size resolution) const;
 	void SetResolution(std::string& resolutionString);
+
+	virtual void OpenGL_Init() = 0;
+	virtual void OpenGL_Deinit() = 0;
+	virtual OpenGLProcAddress OpenGL_GetProcAddress() = 0;
+
+	virtual void Vulkan_Init() = 0;
+	virtual void Vulkan_Deinit() = 0;
 
 	bool isWindowFullscreen = false;
 };

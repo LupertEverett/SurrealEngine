@@ -45,6 +45,12 @@ public:
 	static std::list<Win32Window*> Windows;
 	std::list<Win32Window*>::iterator WindowsIterator;
 
+	void OpenGL_Init() override;
+	void OpenGL_Deinit() override;
+	OpenGLProcAddress OpenGL_GetProcAddress() override;
+
+	void Vulkan_Init() override;
+
 	LRESULT OnWindowMessage(UINT msg, WPARAM wparam, LPARAM lparam);
 	static LRESULT CALLBACK WndProc(HWND windowhandle, UINT msg, WPARAM wparam, LPARAM lparam);
 

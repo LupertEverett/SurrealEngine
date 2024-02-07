@@ -17,34 +17,12 @@ SDL2Window::SDL2Window(GameWindowHost *windowHost) : windowHost(windowHost)
         SDLWindowError("Unable to initialize SDL: " + std::string(SDL_GetError()));
     }
     // Width and height won't matter much as the window will be resized based on the values in [GameExecutableName].ini anyways
-    m_SDLWindow = SDL_CreateWindow("Surreal Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_VULKAN);
+    m_SDLWindow = SDL_CreateWindow("Surreal Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
     if (!m_SDLWindow) {
         SDLWindowError("Unable to create SDL Window: " + std::string(SDL_GetError()));
     }
 
-    // Generate a required extensions list
-    unsigned int extCount;
-    SDL_Vulkan_GetInstanceExtensions(m_SDLWindow, &extCount, nullptr);
-    const char** extNames = new const char*[extCount];
-    SDL_Vulkan_GetInstanceExtensions(m_SDLWindow, &extCount, extNames);
-
-    // Create the instance
-    auto instanceBuilder = VulkanInstanceBuilder();
-    for (int i = 0 ; i < extCount ; i++)
-    {
-        instanceBuilder.RequireExtension(std::string(extNames[i]));
-    }
-    instanceBuilder.OptionalExtension(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME)
-                   .DebugLayer(false);
-    auto instance = instanceBuilder.Create();
-    delete[] extNames;
-
-    VkSurfaceKHR surfaceHandle;
-    SDL_Vulkan_CreateSurface(m_SDLWindow, instance->Instance, &surfaceHandle);
-
-    auto surface = std::make_shared<VulkanSurface>(instance, surfaceHandle);
-
-    rendDevice = RenderDevice::Create(this, surface);
+    Vulkan_Init();
 
     windows[SDL_GetWindowID(m_SDLWindow)] = this;
 }
@@ -659,4 +637,49 @@ SDL_Scancode SDL2Window::InputKeyToSDLScancode(EInputKey inputkey)
         case IK_Tilde: return SDL_SCANCODE_GRAVE;
         default: return (SDL_Scancode)0;
     }
+}
+
+void SDL2Window::OpenGL_Init()
+{
+    SDL_GLContext glContext = SDL_GL_CreateContext(m_SDLWindow);
+    SDL_GL_MakeCurrent(m_SDLWindow, glContext);
+
+    // RenderDevice creation with OpenGLRenderDevice goes here...
+}
+
+void SDL2Window::OpenGL_Deinit()
+{
+    SDL_GL_DeleteContext(SDL_GL_GetCurrentContext());
+}
+
+OpenGLProcAddress SDL2Window::OpenGL_GetProcAddress()
+{
+    return (OpenGLProcAddress)SDL_GL_GetProcAddress;
+}
+
+void SDL2Window::Vulkan_Init()
+{
+    // Generate a required extensions list
+    unsigned int extCount;
+    SDL_Vulkan_GetInstanceExtensions(m_SDLWindow, &extCount, nullptr);
+    const char** extNames = new const char* [extCount];
+    SDL_Vulkan_GetInstanceExtensions(m_SDLWindow, &extCount, extNames);
+
+    // Create the instance
+    auto instanceBuilder = VulkanInstanceBuilder();
+    for (int i = 0; i < extCount; i++)
+    {
+        instanceBuilder.RequireExtension(std::string(extNames[i]));
+    }
+    instanceBuilder.OptionalExtension(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME)
+        .DebugLayer(false);
+    auto instance = instanceBuilder.Create();
+    delete[] extNames;
+
+    VkSurfaceKHR surfaceHandle;
+    SDL_Vulkan_CreateSurface(m_SDLWindow, instance->Instance, &surfaceHandle);
+
+    auto surface = std::make_shared<VulkanSurface>(instance, surfaceHandle);
+
+    rendDevice = RenderDevice::Create(this, surface);
 }

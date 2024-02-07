@@ -62,6 +62,12 @@ public:
 	EInputKey SDLScancodeToInputKey(SDL_Scancode keycode);
 	SDL_Scancode InputKeyToSDLScancode(EInputKey inputkey);
 
+	void OpenGL_Init() override;
+	void OpenGL_Deinit() override;
+	OpenGLProcAddress OpenGL_GetProcAddress() override;
+
+	void Vulkan_Init() override;
+
 	GameWindowHost* windowHost = nullptr;
 	std::unique_ptr<RenderDevice> rendDevice;
 
