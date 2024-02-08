@@ -67,6 +67,7 @@ public:
 	OpenGLProcAddress OpenGL_GetProcAddress() override;
 
 	void Vulkan_Init() override;
+	void Vulkan_Deinit() override;
 
 	GameWindowHost* windowHost = nullptr;
 	std::unique_ptr<RenderDevice> rendDevice;

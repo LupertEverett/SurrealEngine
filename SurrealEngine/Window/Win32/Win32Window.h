@@ -50,6 +50,7 @@ public:
 	OpenGLProcAddress OpenGL_GetProcAddress() override;
 
 	void Vulkan_Init() override;
+	void Vulkan_Deinit() override;
 
 	LRESULT OnWindowMessage(UINT msg, WPARAM wparam, LPARAM lparam);
 	static LRESULT CALLBACK WndProc(HWND windowhandle, UINT msg, WPARAM wparam, LPARAM lparam);

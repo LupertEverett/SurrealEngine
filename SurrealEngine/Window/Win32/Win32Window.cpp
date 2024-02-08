@@ -509,5 +509,10 @@ void Win32Window::Vulkan_Init()
 	Device = RenderDevice::Create(this, surface);
 }
 
+void Win32Window::Vulkan_Deinit()
+{
+
+}
+
 std::list<Win32Window*> Win32Window::Windows;
 bool Win32Window::ExitRunLoop;

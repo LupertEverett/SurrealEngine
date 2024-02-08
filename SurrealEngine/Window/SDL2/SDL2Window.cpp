@@ -16,12 +16,7 @@ SDL2Window::SDL2Window(GameWindowHost *windowHost) : windowHost(windowHost)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
         SDLWindowError("Unable to initialize SDL: " + std::string(SDL_GetError()));
     }
-    // Width and height won't matter much as the window will be resized based on the values in [GameExecutableName].ini anyways
-    m_SDLWindow = SDL_CreateWindow("Surreal Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
-    if (!m_SDLWindow) {
-        SDLWindowError("Unable to create SDL Window: " + std::string(SDL_GetError()));
-    }
-
+    
     Vulkan_Init();
 
     windows[SDL_GetWindowID(m_SDLWindow)] = this;
@@ -31,6 +26,7 @@ SDL2Window::~SDL2Window()
 {
     rendDevice.reset();
     if (m_SDLWindow) {
+        Vulkan_Deinit();
         windows.erase(windows.find(SDL_GetWindowID(m_SDLWindow)));
         SDL_DestroyWindow(m_SDLWindow);
     }
@@ -171,8 +167,8 @@ void SDL2Window::SetWindowFrame(const Rect& box)
         // Fullscreen windows are handled with SDL_DisplayMode
         SDL_DisplayMode mode;
         SDL_GetWindowDisplayMode(m_SDLWindow, &mode);
-        mode.w = box.width;
-        mode.h = box.height;
+        mode.w = (int)box.width;
+        mode.h = (int)box.height;
 
         // Switch outta fullscreen, change the display mode, THEN switch back to fullscreen
         // This avoids the device lost errors, also makes resolution switching work on Wayland
@@ -184,8 +180,8 @@ void SDL2Window::SetWindowFrame(const Rect& box)
     }
     else
     {
-        SDL_SetWindowPosition(m_SDLWindow, box.x, box.y);
-        SDL_SetWindowSize(m_SDLWindow, box.width, box.height);
+        SDL_SetWindowPosition(m_SDLWindow, (int)box.x, (int)box.y);
+        SDL_SetWindowSize(m_SDLWindow, (int)box.width, (int)box.height);
     }
 }
 
@@ -641,6 +637,11 @@ SDL_Scancode SDL2Window::InputKeyToSDLScancode(EInputKey inputkey)
 
 void SDL2Window::OpenGL_Init()
 {
+    m_SDLWindow = SDL_CreateWindow("Surreal Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
+    if (!m_SDLWindow) {
+        SDLWindowError("Unable to create SDL Window: " + std::string(SDL_GetError()));
+    }
+
     SDL_GLContext glContext = SDL_GL_CreateContext(m_SDLWindow);
     SDL_GL_MakeCurrent(m_SDLWindow, glContext);
 
@@ -659,6 +660,12 @@ OpenGLProcAddress SDL2Window::OpenGL_GetProcAddress()
 
 void SDL2Window::Vulkan_Init()
 {
+    // Width and height won't matter much as the window will be resized based on the values in [GameExecutableName].ini anyways
+    m_SDLWindow = SDL_CreateWindow("Surreal Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_VULKAN);
+    if (!m_SDLWindow) {
+        SDLWindowError("Unable to create SDL Window: " + std::string(SDL_GetError()));
+    }
+
     // Generate a required extensions list
     unsigned int extCount;
     SDL_Vulkan_GetInstanceExtensions(m_SDLWindow, &extCount, nullptr);
@@ -667,7 +674,7 @@ void SDL2Window::Vulkan_Init()
 
     // Create the instance
     auto instanceBuilder = VulkanInstanceBuilder();
-    for (int i = 0; i < extCount; i++)
+    for (unsigned int i = 0; i < extCount; i++)
     {
         instanceBuilder.RequireExtension(std::string(extNames[i]));
     }
@@ -682,4 +689,9 @@ void SDL2Window::Vulkan_Init()
     auto surface = std::make_shared<VulkanSurface>(instance, surfaceHandle);
 
     rendDevice = RenderDevice::Create(this, surface);
+}
+
+void SDL2Window::Vulkan_Deinit()
+{
+    SDL_Vulkan_UnloadLibrary();
 }
