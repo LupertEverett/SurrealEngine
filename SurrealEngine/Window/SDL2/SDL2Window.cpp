@@ -637,6 +637,10 @@ SDL_Scancode SDL2Window::InputKeyToSDLScancode(EInputKey inputkey)
 
 void SDL2Window::OpenGL_Init()
 {
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
     m_SDLWindow = SDL_CreateWindow("Surreal Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
     if (!m_SDLWindow) {
         SDLWindowError("Unable to create SDL Window: " + std::string(SDL_GetError()));
@@ -645,7 +649,7 @@ void SDL2Window::OpenGL_Init()
     SDL_GLContext glContext = SDL_GL_CreateContext(m_SDLWindow);
     SDL_GL_MakeCurrent(m_SDLWindow, glContext);
 
-    // RenderDevice creation with OpenGLRenderDevice goes here...
+    rendDevice = RenderDevice::CreateOpenGLRenderDevice(this);
 }
 
 void SDL2Window::OpenGL_Deinit()

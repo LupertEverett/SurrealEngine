@@ -460,9 +460,11 @@ void Win32Window::OpenGL_Init()
 	int pixelFormatSelection = ChoosePixelFormat(deviceContext, &pfd);
 	SetPixelFormat(deviceContext, pixelFormatSelection, &pfd);
 
-	HGLRC glRenderContext = wglCreateContext(deviceContext);
+	// Creation of a dummy context is necessary for obtaining the wglCreateContextAttribsARB() function
+	// So like the doc says, we're creating a context... to create a context :V
+	HGLRC dummyContext = wglCreateContext(deviceContext);
 
-	if (!glRenderContext)
+	if (!dummyContext)
 	{
 		LPVOID lpMsgBuf;
 
@@ -482,14 +484,32 @@ void Win32Window::OpenGL_Init()
 		throw std::runtime_error("Error while creating OpenGL context: " + errorMessage);
 	}
 
-	wglMakeCurrent(deviceContext, glRenderContext);
+	wglMakeCurrent(deviceContext, dummyContext);
 
-	// RenderDevice creation with OpenGLRenderDevice comes here... whenever it can be done :V
+	pfnWGLCREATECONTEXTATTRIBSARB wglCreateContextAttribsARB = (pfnWGLCREATECONTEXTATTRIBSARB) wglGetProcAddress("wglCreateContextAttribsARB");
+
+	if (!wglCreateContextAttribsARB)
+		throw std::runtime_error("OpenGLRenderDevice requires OpenGL 3.3+ Core Context");
+
+	const int attribs[] = {
+		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+		WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		0
+	};
+
+	glRenderContext = wglCreateContextAttribsARB(deviceContext, 0, attribs);
+
+	wglMakeCurrent(deviceContext, glRenderContext);
+	wglDeleteContext(dummyContext);
+
+	Device = RenderDevice::CreateOpenGLRenderDevice(this);
 }
 
 void Win32Window::OpenGL_Deinit()
 {
-	wglDeleteContext(wglGetCurrentContext());
+	wglMakeCurrent(nullptr, nullptr);
+	wglDeleteContext(glRenderContext);
 }
 
 OpenGLProcAddress Win32Window::OpenGL_GetProcAddress()
