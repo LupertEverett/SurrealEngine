@@ -89,6 +89,7 @@ class RenderDevice
 {
 public:
 	static std::unique_ptr<RenderDevice> Create(GameWindow* viewport, std::shared_ptr<VulkanSurface> surface);
+	static std::unique_ptr<RenderDevice> CreateOpenGLRenderDevice(GameWindow* viewport);
 
 	virtual ~RenderDevice() = default;
 
