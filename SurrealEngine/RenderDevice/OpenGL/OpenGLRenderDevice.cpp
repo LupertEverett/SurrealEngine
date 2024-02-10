@@ -1,12 +1,15 @@
 #include "OpenGLRenderDevice.h"
+#include "Window/Window.h"
 
 #include <stdexcept>
 
 // TODO: Implement the OpenGL renderer :V
 
-OpenGLRenderDevice::OpenGLRenderDevice(GameWindow* InWindow) : Viewport(InWindow)
+OpenGLRenderDevice::OpenGLRenderDevice(GameWindow* InWindow)
 {
-	if (!gladLoadGLLoader(GetProcAddress(InWindow))
+	Viewport = InWindow;
+
+	if (!gladLoadGLLoader(GetProcAddress(InWindow)))
 		throw std::runtime_error("Unable to load the Proc addresses.");
 }
 
@@ -94,7 +97,7 @@ void OpenGLRenderDevice::PrecacheTexture(FTextureInfo& Info, uint32_t PolyFlags)
 
 bool OpenGLRenderDevice::SupportsTextureFormat(TextureFormat Format)
 {
-
+	return false;
 }
 
 void OpenGLRenderDevice::UpdateTextureRect(FTextureInfo& Info, int U, int V, int UL, int VL)

@@ -204,6 +204,8 @@ set(SURREALCOMMON_SOURCES
 	SurrealEngine/RenderDevice/Vulkan/UploadManager.h
 	SurrealEngine/RenderDevice/Vulkan/VulkanRenderDevice.cpp
 	SurrealEngine/RenderDevice/Vulkan/VulkanRenderDevice.h
+	SurrealEngine/RenderDevice/OpenGL/OpenGLRenderDevice.cpp
+	SurrealEngine/RenderDevice/OpenGL/OpenGLRenderDevice.h
 	SurrealEngine/Package/ObjectFlags.h
 	SurrealEngine/Package/Package.h
 	SurrealEngine/Package/ObjectStream.h
@@ -421,6 +423,7 @@ set(THIRDPARTY_SOURCES
 	Thirdparty/dumb/include/internal/it.h
 	Thirdparty/dumb/include/internal/riff.h
 	Thirdparty/dumb/include/dumb.h
+	Thirdparty/GLAD/src/glad.c
 	Thirdparty/MurmurHash3/MurmurHash3.cpp
 	Thirdparty/MurmurHash3/MurmurHash3.h
 	Thirdparty/resample/CDSPSincFilterGen.h
@@ -509,9 +512,12 @@ source_group("Thirdparty\\dumb\\src\\helpers" REGULAR_EXPRESSION "${CMAKE_CURREN
 source_group("Thirdparty\\dumb\\src\\it" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/dumb/src/it/.+")
 source_group("Thirdparty\\dumb\\include" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/dumb/include/.+")
 source_group("Thirdparty\\dumb\\include\\internal" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/dumb/include/internal/.+")
+source_group("Thirdparty\\GLAD\\include" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/GLAD/include/.+")
+source_group("Thirdparty\\GLAD\\include\\glad" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/GLAD/include/glad/.+")
+source_group("Thirdparty\\GLAD\\src" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/GLAD/src/.+")
 source_group("Thirdparty\\miniz" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/Thirdparty/miniz/.+")
 
-include_directories(SurrealEngine Thirdparty Thirdparty/ZVulkan/include Thirdparty/ZWidget/include Thirdparty/dumb/include Thirdparty/openal-soft/include Thirdparty/miniz)
+include_directories(SurrealEngine Thirdparty Thirdparty/ZVulkan/include Thirdparty/ZWidget/include Thirdparty/dumb/include Thirdparty/openal-soft/include Thirdparty/miniz Thirdparty/GLAD/include)
 
 if(NOT APPLE AND SDL2_FOUND)
 	include_directories(SurrealEngine ${SDL2_INCLUDE_DIRS})
