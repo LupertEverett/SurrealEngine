@@ -8,6 +8,9 @@
 #include <zvulkan/vulkanbuilders.h>
 #include <windowsx.h>
 
+#include <locale>
+#include <codecvt>
+
 #ifndef HID_USAGE_PAGE_GENERIC
 #define HID_USAGE_PAGE_GENERIC		((USHORT) 0x01)
 #endif
@@ -480,7 +483,8 @@ void Win32Window::OpenGL_Init()
 			(LPTSTR)&lpMsgBuf,
 			0, NULL);
 
-		std::string errorMessage((LPCSTR)lpMsgBuf);
+		// Since lpMsgBuf is a wide string, we gotta narrow it down
+		std::string errorMessage = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().to_bytes((LPTSTR)lpMsgBuf);
 		throw std::runtime_error("Error while creating OpenGL context: " + errorMessage);
 	}
 
