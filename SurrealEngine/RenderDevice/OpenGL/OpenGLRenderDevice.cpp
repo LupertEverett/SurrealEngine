@@ -74,7 +74,12 @@ void OpenGLRenderDevice::Draw2DPoint(FSceneNode* Frame, vec4 Color, float X1, fl
 
 void OpenGLRenderDevice::ClearZ(FSceneNode* Frame)
 {
+	// Following what the Vulkan driver did, seems like it disregards the Frame parameter
+	// and just draws the scene then clears the depth buffer
+	DrawScene();
 
+	glClearDepth(1.0f);
+	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGLRenderDevice::ReadPixels(FColor* Pixels)
@@ -109,7 +114,10 @@ void OpenGLRenderDevice::UpdateTextureRect(FTextureInfo& Info, int U, int V, int
 
 void OpenGLRenderDevice::DrawScene()
 {
-
+	// Following what the Vulkan driver does:
+	// Draw*() functions actually add vertices/colors/indexes to the scene
+	// Then DrawScene() (DrawBatch() in VulkanRenderDevice) handles the actual drawing
+	// TODO: Actually do that :V
 }
 
 GLADloadproc OpenGLRenderDevice::GetProcAddress(GameWindow* InWindow)
