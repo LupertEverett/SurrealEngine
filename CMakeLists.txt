@@ -204,6 +204,8 @@ set(SURREALCOMMON_SOURCES
 	SurrealEngine/RenderDevice/Vulkan/UploadManager.h
 	SurrealEngine/RenderDevice/Vulkan/VulkanRenderDevice.cpp
 	SurrealEngine/RenderDevice/Vulkan/VulkanRenderDevice.h
+	SurrealEngine/RenderDevice/OpenGL/GLTexture.cpp
+	SurrealEngine/RenderDevice/OpenGL/GLTexture.h
 	SurrealEngine/RenderDevice/OpenGL/OpenGLRenderDevice.cpp
 	SurrealEngine/RenderDevice/OpenGL/OpenGLRenderDevice.h
 	SurrealEngine/Package/ObjectFlags.h

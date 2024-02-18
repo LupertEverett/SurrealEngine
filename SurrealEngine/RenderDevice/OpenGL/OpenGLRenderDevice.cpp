@@ -1,6 +1,8 @@
 #include "OpenGLRenderDevice.h"
 #include "Window/Window.h"
 
+#include "GLTexture.h"
+
 #include <stdexcept>
 
 // TODO: Implement the OpenGL renderer :V
@@ -97,7 +99,7 @@ void OpenGLRenderDevice::PrecacheTexture(FTextureInfo& Info, uint32_t PolyFlags)
 
 bool OpenGLRenderDevice::SupportsTextureFormat(TextureFormat Format)
 {
-	return false;
+	return GLTexture::TextureFormatToGL(Format) != 0;
 }
 
 void OpenGLRenderDevice::UpdateTextureRect(FTextureInfo& Info, int U, int V, int UL, int VL)
