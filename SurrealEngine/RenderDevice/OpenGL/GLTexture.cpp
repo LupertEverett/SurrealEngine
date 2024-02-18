@@ -15,7 +15,7 @@ void GLTexture::Bind()
 	glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-void GLTexture::Unbind();
+void GLTexture::Unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -27,11 +27,11 @@ void GLTexture::Generate(FTextureInfo* info)
 
 	Bind();
 
-	for (size_t miplevel = 0; miplevel < numMips; mipLevel++)
+	for (size_t miplevel = 0; miplevel < numMips; miplevel++)
 	{
 		auto& mipmap = info->Texture->Mipmaps[miplevel];
 
-		glTexImage2D(GL_TEXTURE_2D, miplevel, textureFormat, mipmap.Width, mipmap.Height, 0, textureFormat, GL_UNSIGNED_BYTE, mipmap.Data);
+		glTexImage2D(GL_TEXTURE_2D, miplevel, textureFormat, mipmap.Width, mipmap.Height, 0, textureFormat, GL_UNSIGNED_BYTE, mipmap.Data.data());
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -71,7 +71,7 @@ GLuint GLTexture::TextureFormatToGL(TextureFormat format)
 	case TextureFormat::R32_F:
 		return GL_R32F;
 	case TextureFormat::R32_UI:
-		return GL_R32UI
+		return GL_R32UI;
 
 	case TextureFormat::BGR8:
 		return GL_BGR;
@@ -123,7 +123,7 @@ GLuint GLTexture::TextureFormatToGL(TextureFormat format)
 	case TextureFormat::RGBA32_I:
 		return GL_RGBA32I;
 	case TextureFormat::RGBA32_F:
-		return GL_RGBA32F
+		return GL_RGBA32F;
 	case TextureFormat::RGBA32_UI:
 		return GL_RGBA32UI;
 
