@@ -26,17 +26,17 @@ void GLShader::Compile(const char* vertexCode, const char* fragmentCode, const c
 	GLuint VertexShaderID, FragmentShaderID, GeometryShaderID;
 
 	VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(VertexShaderID, 1, SourceCode, NULL);
+	glShaderSource(VertexShaderID, 1, &vertexCode, NULL);
 	CheckCompileErrors(VertexShaderID, "Vertex");
 
 	FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShaderID, 1, SourceCode, NULL);
+	glShaderSource(FragmentShaderID, 1, &fragmentCode, NULL);
 	CheckCompileErrors(FragmentShaderID, "Fragment");
 
 	if (geometryCode)
 	{
 		GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
-		glShaderSource(GeometryShaderID, 1, SourceCode, NULL);
+		glShaderSource(GeometryShaderID, 1, &geometryCode, NULL);
 		CheckCompileErrors(GeometryShaderID, "Geometry");
 	}
 
@@ -81,6 +81,6 @@ void GLShader::CheckLinkErrors() const
 	{
 		glGetProgramInfoLog(ProgramID, 1024, NULL, infoLog);
 
-		throw std::runtime_error("Error while linking shader: " + infoLog);
+		throw std::runtime_error("Error while linking shader: " + std::string(infoLog));
 	}
 }

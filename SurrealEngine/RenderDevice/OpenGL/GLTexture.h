@@ -18,5 +18,6 @@ public:
 
 	static GLuint TextureFormatToGL(TextureFormat format);
 private:
+	std::vector<FColor> P8_Convert(FTextureInfo* info, size_t mipmapLevel);
 	GLuint textureID;
 };

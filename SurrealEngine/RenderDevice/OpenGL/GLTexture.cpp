@@ -31,7 +31,23 @@ void GLTexture::Generate(FTextureInfo* info)
 	{
 		auto& mipmap = info->Texture->Mipmaps[miplevel];
 
-		glTexImage2D(GL_TEXTURE_2D, miplevel, textureFormat, mipmap.Width, mipmap.Height, 0, textureFormat, GL_UNSIGNED_BYTE, mipmap.Data.data());
+		uint8_t* mipmapData = mipmap.Data.data();
+
+		if (textureFormat >= GL_COMPRESSED_RGBA_S3TC_DXT1_EXT && textureFormat <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
+		{
+			glCompressedTexImage2D(GL_TEXTURE_2D, miplevel, textureFormat, mipmap.Width, mipmap.Height, 0, 0, mipmapData);
+		}
+		else
+		{
+			if (info->Format == TextureFormat::P8)
+			{
+				// Convert P8 to RGBA32
+				auto converted_data = P8_Convert(info, miplevel);
+				mipmapData = (uint8_t*)converted_data.data();
+			}
+			
+			glTexImage2D(GL_TEXTURE_2D, miplevel, textureFormat, mipmap.Width, mipmap.Height, 0, textureFormat, GL_UNSIGNED_BYTE, mipmapData);
+		}
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -46,8 +62,19 @@ GLuint GLTexture::TextureFormatToGL(TextureFormat format)
 {
 	switch (format)
 	{
+	// P8 is the Eight-bit Palettized format where the actual texture is 32 bit RGBA
+	// but it is stored as indexes of a palette instead, saving on disk space 
 	case TextureFormat::P8:
-		return 0; // No GL equivalent
+		return GL_RGBA32I;
+
+	// Compressed texture formats DXT1/3/5
+	// An OpenGL 3.3 capable card should already support these at this point.
+	case TextureFormat::BC1:
+		return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+	case TextureFormat::BC2:
+		return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+	case TextureFormat::BC3:
+		return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 
 	case TextureFormat::R1:
 		return 0; // No GL equivalent
@@ -183,4 +210,44 @@ GLuint GLTexture::TextureFormatToGL(TextureFormat format)
 	}
 
 	return 0;
+}
+
+std::vector<FColor> GLTexture::P8_Convert(FTextureInfo* info, size_t mipmapLevel)
+{
+	std::vector<FColor> result;
+
+	UnrealMipmap* mipmap = &info->Texture->Mipmaps[mipmapLevel];
+	size_t mipmapWidth = mipmap->Width;
+	size_t mipmapHeight = mipmap->Height;
+
+	FColor* palette = info->Palette;
+
+	result.resize(mipmapWidth * mipmapHeight);
+
+	if (info->Texture->bMasked())
+	{
+		FColor transparent(0, 0, 0, 0);
+
+		for (size_t y = 0; y < mipmapHeight; y++)
+		{
+			for (size_t x = 0; x < mipmapWidth; x++)
+			{
+				uint8_t index = mipmap->Data[x + y * mipmapWidth];
+				result[x + y * mipmapWidth] = index == 0 ? transparent : palette[index];
+			}
+		}
+	}
+	else
+	{
+		for (size_t y = 0; y < mipmapHeight; y++)
+		{
+			for (size_t x = 0; x < mipmapWidth; x++)
+			{
+				uint8_t index = mipmap->Data[x + y * mipmapWidth];
+				result[x + y * mipmapWidth] = palette[index];
+			}
+		}
+	}
+
+	return result;
 }
