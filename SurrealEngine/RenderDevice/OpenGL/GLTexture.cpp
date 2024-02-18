@@ -98,13 +98,12 @@ GLuint GLTexture::TextureFormatToGL(TextureFormat format)
 
 	case TextureFormat::RGB9E5:
 		return GL_RGB9_E5;
-
+	
 	case TextureFormat::RGB10A2:
-		return GL_RGB10_A2;
 	case TextureFormat::RGB10A2_I:
 	case TextureFormat::RGB10A2_LM:
 	case TextureFormat::RGB10A2_S:
-		return GL_RGB10; // No GL equivalent???
+		return GL_RGB10_A2; // No GL equivalent for the variants???
 	case TextureFormat::RGB10A2_UI:
 		return GL_RGB10_A2UI;
 
