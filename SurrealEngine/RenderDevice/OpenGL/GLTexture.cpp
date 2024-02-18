@@ -34,6 +34,8 @@ void GLTexture::Generate(FTextureInfo* info)
 		glTexImage2D(GL_TEXTURE_2D, miplevel, textureFormat, mipmap.Width, mipmap.Height, 0, textureFormat, GL_UNSIGNED_BYTE, mipmap.Data.data());
 	}
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -164,6 +166,20 @@ GLuint GLTexture::TextureFormatToGL(TextureFormat format)
 	
 	case TextureFormat::R11G11B10_F:
 		return GL_R11F_G11F_B10F;
+
+	// ASTC formats seem to be an OpenGL ES 3.0+ and OpenGL 4.3+ thing...
+	/*
+	case TextureFormat::ASTC_4x4:
+		return GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
+	case TextureFormat::ASTC_5x4:
+		return GL_COMPRESSED_RGBA_ASTC_5x4_KHR;
+	case TextureFormat::ASTC_5x5:
+		return GL_COMPRESSED_RGBA_ASTC_5x5_KHR;
+	case TextureFormat::ASTC_6x5:
+		return GL_COMPRESSED_RGBA_ASTC_6x5_KHR;
+	case TextureFormat::ASTC_6x6:
+		return GL_COMPRESSED_RGBA_ASTC_6x6_KHR;
+	*/
 	}
 
 	return 0;
