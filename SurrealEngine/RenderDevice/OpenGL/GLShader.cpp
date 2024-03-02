@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-GLShader::GLShader()
+GLShader::GLShader() : ProgramID(0)
 {
 }
 
@@ -53,6 +53,26 @@ void GLShader::Compile(const char* vertexCode, const char* fragmentCode, const c
 	glDeleteShader(FragmentShaderID);
 	if (geometryCode)
 		glDeleteShader(GeometryShaderID);
+}
+
+void GLShader::SetUniformMat4(const std::string& uniformName, mat4 value)
+{
+	GLint uniformLocation = glGetUniformLocation(ProgramID, uniformName.c_str());
+
+	if (uniformLocation == -1)
+		throw std::runtime_error(uniformName + " is not a valid Matrix4x4 uniform for the shader!");
+
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, value.matrix);
+}
+
+void GLShader::SetUniformSampler2D(const std::string& uniformName, const int GLTextureSlot)
+{
+	GLint uniformLocation = glGetUniformLocation(ProgramID, uniformName.c_str());
+
+	if (uniformLocation == -1)
+		throw std::runtime_error(uniformName + " is not a valid Sampler2D uniform for the shader!");
+
+	glUniform1i(uniformLocation, GLTextureSlot);
 }
 
 void GLShader::CheckCompileErrors(GLuint Object, const std::string ObjectType) const

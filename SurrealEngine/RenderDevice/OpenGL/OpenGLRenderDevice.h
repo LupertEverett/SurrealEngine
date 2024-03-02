@@ -1,8 +1,13 @@
 #pragma once
 
+#include <memory>
+
 #include "RenderDevice/RenderDevice.h"
 
 #include "glad/glad.h"
+
+#include "GLTextureManager.h"
+#include "GLShaderManager.h"
 
 class OpenGLRenderDevice : public RenderDevice
 {
@@ -30,6 +35,10 @@ public:
 private:
 	FSceneNode* CurrentFrame = nullptr;
 	void DrawScene();
+
+	float Aspect;
 	
 	GLADloadproc GetProcAddress(GameWindow* InWindow);
+	std::unique_ptr<GLTextureManager> Textures;
+	std::unique_ptr<GLShaderManager> Shaders;
 };

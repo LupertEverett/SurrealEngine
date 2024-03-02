@@ -17,6 +17,7 @@ OpenGLRenderDevice::OpenGLRenderDevice(GameWindow* InWindow)
 
 OpenGLRenderDevice::~OpenGLRenderDevice()
 {
+	Textures->ClearTextures();
 }
 
 void OpenGLRenderDevice::Flush(bool AllowPrecache)
@@ -94,17 +95,24 @@ void OpenGLRenderDevice::EndFlash()
 
 void OpenGLRenderDevice::SetSceneNode(FSceneNode* Frame)
 {
+	DrawScene();
 
+	CurrentFrame = Frame;
+
+	Aspect = Frame->FY / Frame->FX;
+
+	glViewport(Frame->X, Frame->Y, Frame->XB, Frame->YB);
 }
 
 void OpenGLRenderDevice::PrecacheTexture(FTextureInfo& Info, uint32_t PolyFlags)
 {
-
+	// TODO: Handle PolyFlags too
+	Textures->GetTexture(&Info);
 }
 
 bool OpenGLRenderDevice::SupportsTextureFormat(TextureFormat Format)
 {
-	return GLTexture::TextureFormatToGL(Format) != 0;
+	return GLTexture::TextureFormatToGL(Format);
 }
 
 void OpenGLRenderDevice::UpdateTextureRect(FTextureInfo& Info, int U, int V, int UL, int VL)
