@@ -8,6 +8,7 @@
 
 #include "GLTextureManager.h"
 #include "GLShaderManager.h"
+#include "GLFramebufferManager.h"
 
 class OpenGLRenderDevice : public RenderDevice
 {
@@ -39,6 +40,8 @@ private:
 	float Aspect;
 	
 	GLADloadproc GetProcAddress(GameWindow* InWindow);
+
+	std::unique_ptr<GLFrameBufferManager> Framebuffers;
 	std::unique_ptr<GLTextureManager> Textures;
 	std::unique_ptr<GLShaderManager> Shaders;
 };

@@ -13,11 +13,17 @@ OpenGLRenderDevice::OpenGLRenderDevice(GameWindow* InWindow)
 
 	if (!gladLoadGLLoader(GetProcAddress(InWindow)))
 		throw std::runtime_error("Unable to load the Proc addresses.");
+
+	Framebuffers.reset(new GLFrameBufferManager(this));
+	Textures.reset(new GLTextureManager());
+	Shaders.reset(new GLShaderManager());
 }
 
 OpenGLRenderDevice::~OpenGLRenderDevice()
 {
 	Textures->ClearTextures();
+	Framebuffers.reset();
+	Shaders.reset();
 }
 
 void OpenGLRenderDevice::Flush(bool AllowPrecache)
@@ -85,7 +91,9 @@ void OpenGLRenderDevice::ClearZ(FSceneNode* Frame)
 
 void OpenGLRenderDevice::ReadPixels(FColor* Pixels)
 {
+	auto readPixels = Framebuffers->SceneFrameBuffer->ReadPixelData();
 
+	memcpy(Pixels, readPixels.data(), readPixels.size());
 }
 
 void OpenGLRenderDevice::EndFlash()

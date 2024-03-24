@@ -7,6 +7,8 @@
 
 #include "SceneData.h"
 
+class OpenGLRenderDevice;
+
 class GLVertexBuffer
 {
 public:
@@ -16,7 +18,7 @@ public:
 	void Bind();
 	void Unbind();
 
-	void LoadBufferData(const std::vector<SceneVertex>& vertices);
+	void LoadBufferData(const std::vector<GLSceneVertex>& vertices);
 
 private:
 	GLuint vertexBufferID;
@@ -31,7 +33,7 @@ public:
 	void Bind();
 	void Unbind();
 
-	void LoadVertexData(const std::vector<SceneVertex>& vertices);
+	void LoadVertexData(const std::vector<GLSceneVertex>& vertices);
 
 private:
 	void CreateVertexArrayAttribs();
@@ -54,4 +56,26 @@ public:
 private:
 	GLuint IndexArrayID;
 	std::vector<unsigned int> indices;
+};
+
+class GLFrameBuffer
+{
+public:
+	GLFrameBuffer(OpenGLRenderDevice* renderDevice);
+	~GLFrameBuffer();
+
+	void Bind();
+	void Unbind();
+
+	void UpdateFrameBufferData();
+
+	std::vector<uint8_t> ReadPixelData();
+
+private:
+	void CreateFrameBufferData();
+
+	GLuint FramebufferID;
+	GLuint FramebufferTextureID;
+	GLuint RenderbufferID;
+	OpenGLRenderDevice* renderDevice;
 };

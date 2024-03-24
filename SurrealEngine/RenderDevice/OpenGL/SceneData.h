@@ -5,7 +5,7 @@
 
 // Stuff copied from Vulkan renderer. This can be generalized perhaps (move the "common" things to a new "RenderDevice/Common" location)
 
-struct SceneVertex
+struct GLSceneVertex
 {
 	uint32_t Flags;
 	vec3 Position;
@@ -17,7 +17,7 @@ struct SceneVertex
 	ivec4 TextureBinds;
 };
 
-struct ScenePushConstants
+struct GLScenePushConstants
 {
 	mat4 objectToProjection;
 };

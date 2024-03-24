@@ -215,6 +215,8 @@ set(SURREALCOMMON_SOURCES
 	SurrealEngine/RenderDevice/OpenGL/GLTexture.h
 	SurrealEngine/RenderDevice/OpenGL/GLTextureManager.cpp
 	SurrealEngine/RenderDevice/OpenGL/GLTextureManager.h
+	SurrealEngine/RenderDevice/OpenGL/GLFramebufferManager.cpp
+	SurrealEngine/RenderDevice/OpenGL/GLFramebufferManager.h
 	SurrealEngine/RenderDevice/OpenGL/SceneData.h
 	SurrealEngine/RenderDevice/OpenGL/OpenGLRenderDevice.cpp
 	SurrealEngine/RenderDevice/OpenGL/OpenGLRenderDevice.h
