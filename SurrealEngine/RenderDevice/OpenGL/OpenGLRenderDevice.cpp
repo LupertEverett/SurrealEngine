@@ -134,6 +134,21 @@ void OpenGLRenderDevice::DrawScene()
 	// Draw*() functions actually add vertices/colors/indexes to the scene
 	// Then DrawScene() (DrawBatch() in VulkanRenderDevice) handles the actual drawing
 	// TODO: Actually do that :V
+
+	while (!CommandBuffer.empty())
+	{
+		Draw(CommandBuffer.front());
+		CommandBuffer.pop_front();
+	}
+}
+
+void OpenGLRenderDevice::Draw(GLDrawCommand& drawCommand)
+{
+	drawCommand.va->Bind();
+	drawCommand.ib->Bind();
+	drawCommand.shader->Bind();
+
+	glDrawElements(GL_TRIANGLE_STRIP, drawCommand.ib->IndicesCount(), GL_UNSIGNED_INT, drawCommand.ib->IndicesData());
 }
 
 GLADloadproc OpenGLRenderDevice::GetProcAddress(GameWindow* InWindow)

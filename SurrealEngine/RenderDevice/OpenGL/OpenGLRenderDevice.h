@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <deque>
 
 #include "RenderDevice/RenderDevice.h"
 
@@ -9,6 +10,7 @@
 #include "GLTextureManager.h"
 #include "GLShaderManager.h"
 #include "GLFramebufferManager.h"
+#include "GLDrawCommand.h"
 
 class OpenGLRenderDevice : public RenderDevice
 {
@@ -36,6 +38,7 @@ public:
 private:
 	FSceneNode* CurrentFrame = nullptr;
 	void DrawScene();
+	void Draw(GLDrawCommand& drawCommand);
 
 	float Aspect;
 	
@@ -44,4 +47,5 @@ private:
 	std::unique_ptr<GLFrameBufferManager> Framebuffers;
 	std::unique_ptr<GLTextureManager> Textures;
 	std::unique_ptr<GLShaderManager> Shaders;
+	std::deque<GLDrawCommand> CommandBuffer;
 };

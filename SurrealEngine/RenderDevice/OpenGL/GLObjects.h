@@ -52,6 +52,7 @@ public:
 
 	void LoadIndicesData(const std::vector<unsigned int>& indices);
 	size_t IndicesCount() { return indices.size(); }
+	GLuint* IndicesData() { return indices.data(); }
 
 private:
 	GLuint IndexArrayID;
