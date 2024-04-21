@@ -336,13 +336,60 @@ void Engine::LoadMap(const UnrealURL& url, const std::map<std::string, std::stri
 	}
 
 	// Find the game info class
+
+	// Game type in the URL is top priority
 	UClass* gameInfoClass = packages->FindClass(LevelInfo->URL.GetOption("game"));
+
+	// Then the game type specified in LevelInfo
 	if (!gameInfoClass)
 		gameInfoClass = LevelInfo->DefaultGameType();
+
+	// If there isn't one, then try to figure the game type out from the map filename (DMAriza, CTF-Face, etc.)
+	// Unreal 1 DM and DarkMatch levels, as well as some UT maps work this way.
+	if (!gameInfoClass)
+	{
+		// Painfully extract the prefix from the map name itself
+		std::string mapFileName = FilePath::remove_extension(url.Map);
+		std::string mapPrefix;
+		size_t dash_pos = mapFileName.find('-');
+		if (dash_pos != std::string::npos)
+			mapPrefix = mapFileName.substr(0, dash_pos);
+		else
+			mapPrefix = mapFileName.substr(0, 2);
+		// Why std::string itself cannot have tolower() or something of the sort...
+		std::string mapPrefixLowercase;
+		mapPrefixLowercase.resize(mapPrefix.size());
+		std::transform(mapPrefix.begin(), mapPrefix.end(), mapPrefixLowercase.begin(), [](unsigned char c) { return tolower(c); });
+
+		if (packages->IsUnreal1())
+		{
+			// For Unreal 1, only checking the DM and DK prefixes are enough, as it doesn't support CTF, Assault, etc.
+			// As such, mods that add these kind of game types definitely HAVE TO specify them in their maps.
+			if (mapPrefixLowercase == "dm")
+				gameInfoClass = packages->FindClass("UnrealShare.DeathMatchGame");
+			else if (mapPrefixLowercase == "dk")
+				gameInfoClass = packages->FindClass("UnrealI.DarkMatch");
+		}
+		else if (packages->IsUnrealTournament())
+		{
+			if (mapPrefixLowercase == "dm")
+				gameInfoClass = packages->FindClass("Botpack.DeathMatchPlus");
+			else if (mapPrefixLowercase == "ctf")
+				gameInfoClass = packages->FindClass("Botpack.CTFGame");
+			else if (mapPrefixLowercase == "as")
+				gameInfoClass = packages->FindClass("Botpack.Assault");
+			else if (mapPrefixLowercase == "dom")
+				gameInfoClass = packages->FindClass("Botpack.Domination");
+			// Last Man Standing doesn't have a special prefix, as it works with the normal DM maps.
+		}
+	}
+
+	// If we still didn't find anything, then fallback to the default game type specified in the ini file.
+	// (There is also a DefaultServerGame key there, but is there a way to use it?)
 	if (!gameInfoClass)
 		gameInfoClass = packages->FindClass(packages->GetIniValue("system", "Engine.Engine", "DefaultGame"));
-	if (!gameInfoClass)
-		gameInfoClass = packages->FindClass("Botpack.DeathMatchPlus");
+
+	// Still nothing? Nothing else we can do. Bail out.
 	if (!gameInfoClass)
 		throw std::runtime_error("Could not find any gameinfo class!");
 
