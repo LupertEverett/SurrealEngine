@@ -90,6 +90,12 @@ private:
     void *mem = nullptr;
 };
 
+struct WaylandHandleData
+{
+    wayland::display_t* display;
+    wayland::surface_t* surface;
+};
+
 class WaylandDisplayWindow : public DisplayWindow
 {
 public:
@@ -133,7 +139,9 @@ public:
 	Point MapFromGlobal(const Point& pos) const override;
 	Point MapToGlobal(const Point& pos) const override;
 
-    void* GetNativeHandle() override { return (void*)&m_XDGToplevel; }
+    void* GetNativeHandle() override {
+        return (void*) &handleData;
+    }
 
     static void ProcessEvents();
     static void RunLoop();
@@ -165,6 +173,8 @@ private:
     WaylandDisplayWindow* m_owner = nullptr;
     DisplayWindowHost* windowHost = nullptr;
     bool m_PopupWindow = false;
+
+    WaylandHandleData handleData;
 
     bool m_NeedsUpdate = true;
     static void CheckNeedsUpdate();

@@ -9,11 +9,19 @@ if(WIN32)
 	find_package(SDL2)
 endif()
 if(UNIX AND NOT APPLE)
+	include(FindPkgConfig)
 	find_package(SDL2 QUIET)
 	if(NOT ${SDL2_FOUND})
-		include(FindPkgConfig)
+
 		pkg_search_module(SDL2 REQUIRED sdl2)
 	endif()
+	pkg_check_modules(WAYLANDPP
+		wayland-client++
+		wayland-client-extra++
+		wayland-client-unstable++
+		wayland-cursor++
+		xkbcommon>=0.5.0
+	)
 endif()
 
 project(SurrealEngine)
@@ -555,6 +563,10 @@ elseif(APPLE)
 else()
 	set(SURREALCOMMON_SOURCES ${SURREALCOMMON_SOURCES} ${SURREALCOMMON_SDL2_SOURCES})
 	set(SURREALCOMMON_LIBS ${SURREALCOMMON_LIBS} ${SURREALCOMMON_UNIX_LIBS} ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} -lSDL2 -ldl -lasound)
+	if (WAYLANDPP_FOUND)
+		set(SURREALCOMMON_LIBS ${SURREALCOMMON_LIBS} ${WAYLANDPP_LDFLAGS})
+		add_definitions(-DUSE_WAYLAND)
+	endif()
 	set(THIRDPARTY_SOURCES ${THIRDPARTY_SOURCES} ${THIRDPARTY_UNIX_SOURCES})
 	add_definitions(-DUNIX -D_UNIX)
 	add_link_options(-pthread)

@@ -150,6 +150,9 @@ WaylandDisplayWindow::WaylandDisplayWindow(DisplayWindowHost* windowHost, bool p
         InitializeToplevel();
     }
 
+    handleData.display = &s_waylandDisplay;
+    handleData.surface = &m_AppSurface;
+
     s_Windows.push_back(this);
     s_WindowsIterator = s_Windows.end();
 
