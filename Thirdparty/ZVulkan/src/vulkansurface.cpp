@@ -25,3 +25,21 @@ VulkanSurface::VulkanSurface(std::shared_ptr<VulkanInstance> instance, HWND wind
 }
 
 #endif
+
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+
+VulkanSurface::VulkanSurface(std::shared_ptr<VulkanInstance> instance, wl_display* display, wl_surface* surface)
+	: Instance(std::move(instance))
+{
+	VkWaylandSurfaceCreateInfoKHR createInfo = { VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR };
+
+	createInfo.display = display;
+	createInfo.surface = surface;
+
+	VkResult result = vkCreateWaylandSurfaceKHR(Instance->Instance, &createInfo, nullptr, &Surface);
+
+	if (result != VK_SUCCESS)
+		VulkanError("Could not create Vulkan surface");
+}
+
+#endif

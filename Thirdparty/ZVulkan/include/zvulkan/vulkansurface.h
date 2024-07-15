@@ -2,6 +2,10 @@
 
 #include "vulkaninstance.h"
 
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+#include <wayland-client.h>
+#endif
+
 class VulkanSurface
 {
 public:
@@ -16,5 +20,9 @@ public:
 	VulkanSurface(std::shared_ptr<VulkanInstance> instance, HWND window);
 	HWND Window = 0;
 
+#endif
+
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+	VulkanSurface(std::shared_ptr<VulkanInstance> instance, wl_display* display, wl_surface* surface);
 #endif
 };

@@ -6,6 +6,7 @@
 #define VK_USE_PLATFORM_METAL_EXT
 #else
 #define VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
 #endif
 
 /* This file is part of volk library; see volk.h for version/license details */
