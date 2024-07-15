@@ -18,6 +18,10 @@
 #endif
 #endif
 
+#if defined(USE_WAYLAND)
+#include <wayland-client.hpp>
+#endif
+
 GameWindow::GameWindow(GameWindowHost* windowHost) : Widget(nullptr, WidgetType::Window, RenderAPI::Vulkan), windowHost(windowHost)
 {
 	std::shared_ptr<VulkanSurface> surface;
@@ -66,10 +70,25 @@ GameWindow::GameWindow(GameWindowHost* windowHost) : Widget(nullptr, WidgetType:
 		// To do: handle X11 backend
 	}
 
+#if defined(USE_WAYLAND)
 	if (DisplayBackend::Get()->IsWayland())
 	{
-		// To do: handle Wayland backend
+		struct WaylandHandleData
+		{
+			wayland::display_t* display;
+			wayland::surface_t* surface;
+		};
+
+		WaylandHandleData* handleData = (WaylandHandleData*) GetNativeHandle();
+
+		auto instance = VulkanInstanceBuilder()
+			.RequireSurfaceExtensions()
+			.DebugLayer(false)
+			.Create();
+
+		surface = std::make_shared<VulkanSurface>(instance, *handleData->display, *handleData->surface);
 	}
+#endif
 
 	if (!surface)
 		throw std::runtime_error("No vulkan surface found");

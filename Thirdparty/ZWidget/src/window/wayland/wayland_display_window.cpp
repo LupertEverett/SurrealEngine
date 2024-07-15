@@ -153,6 +153,9 @@ WaylandDisplayWindow::WaylandDisplayWindow(DisplayWindowHost* windowHost, bool p
     s_Windows.push_back(this);
     s_WindowsIterator = s_Windows.end();
 
+    handleData.display = &s_waylandDisplay;
+    handleData.surface = &m_AppSurface;
+
     this->DrawSurface();
 }
 
